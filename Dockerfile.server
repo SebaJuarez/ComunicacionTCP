@@ -1,0 +1,18 @@
+# Usar OpenJDK 21 como base
+FROM openjdk:21
+
+# Establecer directorio de trabajo
+WORKDIR /app
+
+# Copiar código fuente
+COPY src/servidor /app/servidor
+
+# Compilar respetando la estructura de paquetes
+WORKDIR /app
+RUN javac -d . servidor/ServidorTCP.java
+
+# Exponer el puerto del servidor
+EXPOSE 5000
+
+# Ejecutar el servidor respetando su paquete
+CMD ["java", "servidor.ServidorTCP"]
