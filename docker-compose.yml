@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  server:
+    build: src
+    container_name: tcp_server
+    command: ["java", "TCPServer"]
+    environment:
+      - DIRECCION_SERVIDOR=server
+    ports:
+      - "5000:5000"
+
+  client:
+    build: src
+    container_name: tcp_client
+    command: ["java", "TCPClient"]
+    depends_on:
+      - server
+    environment:
+      - DIRECCION_SERVIDOR=server
