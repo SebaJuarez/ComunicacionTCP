@@ -9,7 +9,7 @@ import java.net.Socket;
 public class ClienteTCP {
     public static void main(String[] args) {
 
-        String serverAddress = System.getenv("DIRECCION-SERVIDOR"); // Set from environment variable
+        String serverAddress = System.getenv("DIRECCION_SERVIDOR"); // Set from environment variable
         if (serverAddress == null) {
             serverAddress = "localhost"; // Default value if environment variable is not set
         }
