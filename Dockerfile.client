@@ -1,0 +1,15 @@
+# Usar OpenJDK 21 como base
+FROM openjdk:21
+
+# Establecer directorio de trabajo
+WORKDIR /app
+
+# Copiar código fuente
+COPY src/cliente /app/cliente
+
+# Compilar respetando la estructura de paquetes
+WORKDIR /app
+RUN javac -d . cliente/ClienteTCP.java
+
+# Ejecutar el cliente respetando su paquete
+CMD ["java", "cliente.ClienteTCP"]
