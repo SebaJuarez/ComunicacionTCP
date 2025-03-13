@@ -14,7 +14,5 @@ services:
       context: .
       dockerfile: Dockerfile.client  # Usa el Dockerfile específico del cliente
     container_name: tcp_client
-    depends_on:
-      - server
     environment:
       - DIRECCION_SERVIDOR=server
