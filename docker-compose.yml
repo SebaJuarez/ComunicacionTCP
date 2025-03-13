@@ -1,18 +1,16 @@
 version: '3.8'
 
 services:
-  server:
+  client-server1:
     build:
       context: .
-      dockerfile: Dockerfile.server  # Usa el Dockerfile específico del servidor
-    container_name: tcp_server
-    ports:
-      - "5000:5000"
+      dockerfile: Dockerfile  # Usa el Dockerfile específico del servidor
+    container_name: client-server1
+    command: ["tail", "-f", "/dev/null"]  # Mantener el contenedor activo
 
-  client:
+  client-server2:
     build:
       context: .
-      dockerfile: Dockerfile.client  # Usa el Dockerfile específico del cliente
-    container_name: tcp_client
-    environment:
-      - DIRECCION_SERVIDOR=server
+      dockerfile: Dockerfile  # Usa el Dockerfile específico del cliente
+    container_name: client-server2
+    command: ["tail", "-f", "/dev/null"]  # Mantener el contenedor activo
