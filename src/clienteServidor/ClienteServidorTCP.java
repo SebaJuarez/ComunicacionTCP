@@ -17,7 +17,7 @@ public class ClienteServidorTCP {
         int clientPort = Integer.parseInt(args[3]); // Puerto del otro nodo para la conexión cliente
 
         // Hilo para el servidor
-        Thread serverThread = new Thread(() -> startServer(serverPort));
+        Thread serverThread = new Thread(() -> startServer(serverAddress, serverPort));
 
         // Hilo para el cliente
         Thread clientThread = new Thread(() -> startClient(clientAddress, clientPort));
@@ -27,9 +27,10 @@ public class ClienteServidorTCP {
         clientThread.start();
     }
 
-    public static void startServer(int port) {
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.println("Servidor esperando conexiones en el puerto " + port);
+    public static void startServer(String ip, int port) {
+        try (ServerSocket serverSocket = new ServerSocket()) {
+            serverSocket.bind(new InetSocketAddress(ip, port));
+            System.out.println("Servidor esperando conexiones en " + ip + ":" + port);
 
             while (true) {
                 Socket socket = serverSocket.accept();
@@ -41,7 +42,7 @@ public class ClienteServidorTCP {
                 String receivedMessage = input.readLine();
                 System.out.println("Mensaje recibido: " + receivedMessage);
 
-                output.println("Hola, cliente!"); // Responder al cliente
+                output.println("Hola, cliente!");
 
                 socket.close();
             }
@@ -49,23 +50,23 @@ public class ClienteServidorTCP {
             e.printStackTrace();
         }
     }
+
     public static void startClient(String serverAddress, int port) {
         while (true) {
             try (Socket socket = new Socket(serverAddress, port)) {
                 PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
                 BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-                output.println("Hola, servidor!");  // Enviar saludo
+                output.println("Hola, servidor!");
 
                 String response = input.readLine();
-                System.out.println("Respuesta del servidor: " + response); // Recibir respuesta
+                System.out.println("Respuesta del servidor: " + response);
 
-                break;  // Salir después de recibir la respuesta
+                break;
             } catch (IOException e) {
-                System.out.println("Error al intentar conectar o durante la comunicación. Intentando nuevamente...");
-
+                System.out.println("Error al intentar conectar. Intentando nuevamente...");
                 try {
-                    Thread.sleep(5000); // Esperar 5 segundos antes de intentar reconectar
+                    Thread.sleep(5000);
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
                     System.out.println("Error durante la espera de reconexión");

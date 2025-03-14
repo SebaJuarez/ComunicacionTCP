@@ -6,11 +6,13 @@ services:
       context: .
       dockerfile: Dockerfile  # Usa el Dockerfile específico del servidor
     container_name: client-server1
-    command: ["tail", "-f", "/dev/null"]  # Mantener el contenedor activo
+    stdin_open: true
+    tty: true
 
   client-server2:
     build:
       context: .
       dockerfile: Dockerfile  # Usa el Dockerfile específico del cliente
     container_name: client-server2
-    command: ["tail", "-f", "/dev/null"]  # Mantener el contenedor activo
+    stdin_open: true
+    tty: true
