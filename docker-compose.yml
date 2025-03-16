@@ -1,18 +1,24 @@
 version: '3.8'
 
 services:
-  server:
+  servidor:
     build:
       context: .
-      dockerfile: Dockerfile.server  # Usa el Dockerfile específico del servidor
-    container_name: tcp_server
+      dockerfile: Dockerfile.server
     ports:
-      - "5000:5000"
+      - "5000:5000"  # Exponer el puerto 5000 para la conexión TCP
+    networks:
+      - tcp-network
 
-  client:
+  cliente:
     build:
       context: .
-      dockerfile: Dockerfile.client  # Usa el Dockerfile específico del cliente
-    container_name: tcp_client
+      dockerfile: Dockerfile.client
+    networks:
+      - tcp-network
     environment:
-      - DIRECCION_SERVIDOR=server
+      - DIRECCION_SERVIDOR=servidor  # Establecer el nombre del contenedor del servidor como variable de entorno
+
+networks:
+  tcp-network:
+    driver: bridge
