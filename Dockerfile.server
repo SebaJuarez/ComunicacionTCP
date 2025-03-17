@@ -6,10 +6,12 @@ WORKDIR /app
 
 # Copiar código fuente
 COPY src/servidor /app/servidor
+COPY src/logger /app/logger
 
 # Compilar respetando la estructura de paquetes
 WORKDIR /app
 RUN javac -d . servidor/ServidorTCP.java
+RUN javac -d . logger/Logger.java
 
 # Exponer el puerto del servidor
 EXPOSE 5000

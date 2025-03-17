@@ -6,10 +6,12 @@ WORKDIR /app
 
 # Copiar código fuente
 COPY src/cliente /app/cliente
+COPY src/logger /app/logger
 
 # Compilar respetando la estructura de paquetes
 WORKDIR /app
 RUN javac -d . cliente/ClienteTCP.java
+RUN javac -d . logger/Logger.java
 
 # Ejecutar el cliente respetando su paquete
 CMD ["java", "cliente.ClienteTCP"]

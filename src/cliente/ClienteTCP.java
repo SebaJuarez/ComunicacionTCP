@@ -2,6 +2,7 @@ package cliente;
 
 import java.io.*;
 import java.net.*;
+import static logger.Logger.sysoConHora;
 
 public class ClienteTCP {
     private static final int BASE_RETRY_DELAY = 1000; // 1 segundo inicial
@@ -22,7 +23,7 @@ public class ClienteTCP {
             BufferedReader input = null;
 
             try {
-                System.out.println("Intentando conectar al servidor en " + serverAddress + ":" + port);
+                sysoConHora("Intentando conectar al servidor en " + serverAddress + ":" + port);
 
                 // Crear socket sin conexión
                 socket = new Socket();
@@ -32,7 +33,7 @@ public class ClienteTCP {
                 output = new PrintWriter(socket.getOutputStream(), true);
                 input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-                System.out.println("Conectado al servidor!");
+                sysoConHora("Conectado al servidor!");
 
                 // Reiniciar el tiempo de espera en caso de éxito
                 retryDelay = BASE_RETRY_DELAY;
@@ -42,33 +43,33 @@ public class ClienteTCP {
 
                 // Recibir respuesta del servidor
                 String response = input.readLine();
-                System.out.println("Respuesta del servidor: " + response);
+                sysoConHora("Respuesta del servidor: " + response);
 
                 // Mantener la conexión y leer mensajes
                 while (true) {
                     try {
                         String serverMessage = input.readLine();
                         if (serverMessage == null) {
-                            System.out.println("El servidor ha cerrado la conexión.");
+                            sysoConHora("El servidor ha cerrado la conexión.");
                             break;
                         }
-                        System.out.println("Mensaje del servidor: " + serverMessage);
+                        sysoConHora("Mensaje del servidor: " + serverMessage);
                     } catch (SocketException se) {
-                        System.out.println("Error de comunicación, la conexión fue cerrada.");
+                        sysoConHora("Error de comunicación, la conexión fue cerrada.");
                         break;
                     }
                 }
 
             } catch (IOException e) {
-                System.out.println("Error al conectar con el servidor: " + e.getMessage());
+                sysoConHora("Error al conectar con el servidor: " + e.getMessage());
 
                 // Esperar antes de reintentar con backoff exponencial
                 try {
-                    System.out.println("Reintentando en " + (retryDelay / 1000) + " segundos...");
+                    sysoConHora("Reintentando en " + (retryDelay / 1000) + " segundos...");
                     Thread.sleep(retryDelay);
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
-                    System.out.println("Hilo interrumpido durante la espera de reconexión.");
+                    sysoConHora("Hilo interrumpido durante la espera de reconexión.");
                     return;
                 }
 
@@ -80,7 +81,7 @@ public class ClienteTCP {
                         socket.close();
                     }
                 } catch (IOException e) {
-                    System.out.println("Error cerrando el socket.");
+                    sysoConHora("Error cerrando el socket.");
                 }
             }
         }

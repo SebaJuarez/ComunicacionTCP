@@ -9,6 +9,7 @@ services:
       - "5000:5000"  # Exponer el puerto 5000 para la conexión TCP
     networks:
       - tcp-network
+    container_name: servidor
 
   cliente:
     build:
@@ -18,6 +19,7 @@ services:
       - tcp-network
     environment:
       - DIRECCION_SERVIDOR=servidor  # Establecer el nombre del contenedor del servidor como variable de entorno
+    container_name: cliente
 
 networks:
   tcp-network:
