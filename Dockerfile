@@ -5,16 +5,15 @@ FROM openjdk:21
 WORKDIR /app
 
 # Copiar código fuente
-COPY src/servidor /app/servidor
+COPY src/clienteServidor /app/clienteServidor
 COPY src/logger /app/logger
 
 # Compilar respetando la estructura de paquetes
 WORKDIR /app
-RUN javac -d . servidor/ServidorTCP.java
+RUN javac -d . clienteServidor/ClienteServidorTCP.java
 RUN javac -d . logger/Logger.java
 
-# Exponer el puerto del servidor
+# Exponer un puerto para la comunicación
 EXPOSE 5000
 
-# Ejecutar el servidor respetando su paquete
-CMD ["java", "servidor.ServidorTCP"]
+
