@@ -1,25 +1,27 @@
 version: '3.8'
 
 services:
-  servidor:
+  nodo1:
     build:
       context: .
-      dockerfile: Dockerfile.server
+      dockerfile: Dockerfile
+    networks:
+      - tcp-network
+    container_name: nodo1
+    command: ["java", "clienteServidor.ClienteServidorTCP", "0.0.0.0", "5000", "nodo2", "5001"]
     ports:
-      - "5000:5000"  # Exponer el puerto 5000 para la conexión TCP
-    networks:
-      - tcp-network
-    container_name: servidor
+      - "5000:5000"
 
-  cliente:
+  nodo2:
     build:
       context: .
-      dockerfile: Dockerfile.client
+      dockerfile: Dockerfile
     networks:
       - tcp-network
-    environment:
-      - DIRECCION_SERVIDOR=servidor  # Establecer el nombre del contenedor del servidor como variable de entorno
-    container_name: cliente
+    container_name: nodo2
+    command: ["java", "clienteServidor.ClienteServidorTCP", "0.0.0.0", "5001", "nodo1", "5000"]
+    ports:
+      - "5001:5001"
 
 networks:
   tcp-network:
