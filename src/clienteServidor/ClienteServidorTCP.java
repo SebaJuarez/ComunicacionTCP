@@ -56,7 +56,7 @@ public class ClienteServidorTCP {
             } catch (IOException e) {
                 sysoConHora("Error conectando con " + ip + ": " + e.getMessage());
                 try {
-                    sysoConHora("Reintentando en " + (retryDelay / 1000) + " segundos...");
+                    sysoConHora("Reintentando conexión...");
                     Thread.sleep(retryDelay);
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
@@ -71,7 +71,7 @@ public class ClienteServidorTCP {
 class ClienteHandler implements Runnable {
     private Socket socket;
 
-    public ClienteHandler(Socket socket) { this.socket = socket; }
+    public ClienteHandler(Socket socket) throws SocketException { this.socket = socket;}
     @Override
     public void run() {
 
