@@ -2,6 +2,7 @@ package utils;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDateTime;
 
 public class Mensaje {
@@ -14,7 +15,8 @@ public class Mensaje {
     private TipoMensaje tipoMensaje;
 
     // Constructor vacío necesario para Jackson
-    public Mensaje() {}
+    public Mensaje() {
+    }
 
     // Constructor con parámetros
     @JsonCreator
@@ -22,7 +24,7 @@ public class Mensaje {
             @JsonProperty("ipOrigen") String ipOrigen,
             @JsonProperty("destino") String destino,
             @JsonProperty("mensaje") String mensaje,
-            @JsonProperty("tipoMensaje") TipoMensaje tipoMensaje){
+            @JsonProperty("tipoMensaje") TipoMensaje tipoMensaje) {
         this.ipOrigen = ipOrigen;
         this.destino = destino;
         this.mensaje = mensaje;
