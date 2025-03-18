@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   nodo1:
     build:
@@ -8,7 +6,7 @@ services:
     networks:
       - tcp-network
     container_name: nodo1
-    command: ["java", "clienteServidor.ClienteServidorTCP", "0.0.0.0", "5000", "nodo2", "5001"]
+    command: ["java", "-cp", "lib/*:.", "clienteServidor.ClienteServidorTCP", "nodo1", "5000", "nodo2", "5001"]
     ports:
       - "5000:5000"
 
@@ -19,7 +17,7 @@ services:
     networks:
       - tcp-network
     container_name: nodo2
-    command: ["java", "clienteServidor.ClienteServidorTCP", "0.0.0.0", "5001", "nodo1", "5000"]
+    command: ["java", "-cp", "lib/*:.", "clienteServidor.ClienteServidorTCP", "nodo2", "5001", "nodo1", "5000"]
     ports:
       - "5001:5001"
 

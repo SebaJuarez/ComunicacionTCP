@@ -7,13 +7,16 @@ WORKDIR /app
 # Copiar código fuente
 COPY src/clienteServidor /app/clienteServidor
 COPY src/logger /app/logger
+COPY src/utils /app/utils
 
-# Compilar respetando la estructura de paquetes
+# Copiar librerías externas (Jackson, etc.)
+COPY lib /app/lib
+
+# Compilar con el classpath que incluye todas las librerías
 WORKDIR /app
-RUN javac -d . clienteServidor/ClienteServidorTCP.java
-RUN javac -d . logger/Logger.java
+RUN javac -cp "lib/*:." -d . utils/Mapper.java utils/Mensaje.java
+RUN javac -cp "lib/*:." -d . logger/Logger.java
+RUN javac -cp "lib/*:." -d . clienteServidor/ClienteServidorTCP.java
 
 # Exponer un puerto para la comunicación
 EXPOSE 5000
-
-
