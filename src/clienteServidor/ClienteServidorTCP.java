@@ -3,34 +3,25 @@ package clienteServidor;
 import utils.Mapper;
 import utils.Mensaje;
 import utils.TipoMensaje;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketException;
-
 import static logger.Logger.sysoConHora;
 
-public class ClienteServidorTCP {
-    private static final int BASE_RETRY_DELAY = 1000;
-    private static final int MAX_RETRY_DELAY = 30000;
+import java.io.*;
+import java.net.*;
+import java.util.*;
 
+public class ClienteServidorTCP {
     public static void main(String[] args) {
-        if (args.length != 4) {
-            System.out.println("Uso: java ClienteServidorTCP <miIP> <miPuerto> <IPRemoto> <PuertoRemoto>");
+        if (args.length != 2) {
+            System.out.println("Uso: java ClienteServidorTCP <IPRegistroContactos> <PuertoRegistroContactos>");
             return;
         }
 
-        String miIP = args[0];
-        int miPuerto = Integer.parseInt(args[1]);
-        String ipRemota = args[2];
-        int puertoRemoto = Integer.parseInt(args[3]);
+        String ipRegistro = args[0];
+        int puertoRegistro = Integer.parseInt(args[1]);
+        int puertoLocal = new Random().nextInt(10000) + 1024;
 
-        new Thread(() -> iniciarServidor(miPuerto)).start();
-        new Thread(() -> iniciarCliente(miIP, ipRemota, puertoRemoto)).start();
+        new Thread(() -> iniciarServidor(puertoLocal)).start();
+        new Thread(() -> registrarYConectar(ipRegistro, puertoRegistro, puertoLocal)).start();
     }
 
     private static void iniciarServidor(int puerto) {
@@ -38,7 +29,6 @@ public class ClienteServidorTCP {
             sysoConHora("Servidor escuchando en el puerto " + puerto);
             while (true) {
                 Socket socket = serverSocket.accept();
-                sysoConHora("Cliente conectado desde: " + socket.getInetAddress());
                 new Thread(new ClienteHandler(socket)).start();
             }
         } catch (IOException e) {
@@ -46,72 +36,109 @@ public class ClienteServidorTCP {
         }
     }
 
-    private static void iniciarCliente(String miIP, String ip, int puerto) {
-        int retryDelay = BASE_RETRY_DELAY;
-        while (true) {
-            try (Socket socket = new Socket(ip, puerto);
+    private static void registrarYConectar(String ipRegistro, int puertoRegistro, int puertoLocal) {
+        int intentos = 0;
+        int maxIntentos = 5;
+        int espera = 1000; // 1 segundo inicial
+
+        while (intentos < maxIntentos) {
+            try (Socket socket = new Socket(ipRegistro, puertoRegistro);
                  PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
                  BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
-                sysoConHora("Conectado a " + ip + ":" + puerto);
-                retryDelay = BASE_RETRY_DELAY;
-
-                // Crear y enviar mensaje JSON
-                Mensaje mensaje = new Mensaje(miIP, ip, "Hola desde " + miIP, TipoMensaje.SALUDO);
+                String miIP = InetAddress.getLocalHost().getHostAddress();
+                Mensaje mensaje = new Mensaje(miIP, "RegistroContactos", String.valueOf(puertoLocal), TipoMensaje.CONFIGURACION);
                 output.println(Mapper.toJson(mensaje));
 
-                // Recibir respuesta
-                String response = input.readLine();
-                if (response != null) {
-                    Mensaje mensajeRecibido = Mapper.fromJson(response);
-                    sysoConHora("Respuesta del servidor: " + mensajeRecibido.toString());
+                String respuesta = input.readLine();
+                if (respuesta != null) {
+                    Mensaje mensajeRecibido = Mapper.fromJson(respuesta);
+                    sysoConHora("Nodos recibidos: " + mensajeRecibido.getMensaje());
+                    conectarANodos(mensajeRecibido.getMensaje());
                 }
-
-                // Escuchar mensajes del servidor
-                while (true) {
-                    String serverMessage = input.readLine();
-                    if (serverMessage == null) break;
-                    Mensaje msg = Mapper.fromJson(serverMessage);
-                    sysoConHora("Mensaje del servidor: " + msg.toString());
-                }
+                return; // Éxito, salimos del bucle
             } catch (IOException e) {
-                sysoConHora("Error conectando con " + ip + ": " + e.getMessage());
-                try {
-                    sysoConHora("Reintentando conexión...");
-                    Thread.sleep(retryDelay);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    return;
+                intentos++;
+                sysoConHora("Intento " + intentos + " de " + maxIntentos + ": Error registrando nodo: " + e.getMessage());
+                if (intentos < maxIntentos) {
+                    try {
+                        Thread.sleep(espera);
+                        espera *= 2; // Incremento exponencial
+                    } catch (InterruptedException ex) {
+                        Thread.currentThread().interrupt();
+                    }
                 }
-                retryDelay = Math.min(retryDelay * 2, MAX_RETRY_DELAY);
             }
         }
-    }
-}
-
-class ClienteHandler implements Runnable {
-    private Socket socket;
-
-    public ClienteHandler(Socket socket) throws SocketException {
-        this.socket = socket;
+        sysoConHora("No se pudo conectar al RegistroContactos después de " + maxIntentos + " intentos.");
     }
 
-    @Override
-    public void run() {
-        try (BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-             PrintWriter output = new PrintWriter(socket.getOutputStream(), true)) {
+    private static void conectarANodos(String nodos) {
+        try {
+            String miIP = InetAddress.getLocalHost().getHostAddress();
+            for (String nodo : nodos.split(",")) {
+                String[] datos = nodo.split(":");
+                if (datos.length == 2) {
+                    String ip = datos[0];
+                    int puerto = Integer.parseInt(datos[1]);
 
-            String mensajeJson;
-            while ((mensajeJson = input.readLine()) != null) {
-                Mensaje mensaje = Mapper.fromJson(mensajeJson);
-                sysoConHora("Mensaje recibido: " + mensaje.toString());
+                    // Evitar conectarse a sí mismo
+                    if (!ip.equals(miIP)) {
+                        new Thread(() -> conectarNodo(ip, puerto)).start();
+                    } else {
+                        sysoConHora("Evitando conexión a sí mismo: " + ip + ":" + puerto);
+                    }
+                }
+            }
+        } catch (UnknownHostException e) {
+            sysoConHora("Error obteniendo la IP local: " + e.getMessage());
+        }
+    }
 
-                // Enviar respuesta JSON con IP origen y destino
-                Mensaje respuesta = new Mensaje(socket.getLocalAddress().getHostAddress(), mensaje.getIpOrigen(), "Hola desde " + socket.getLocalAddress().getHostAddress(), TipoMensaje.SALUDO);
-                output.println(Mapper.toJson(respuesta));
+
+    private static void conectarNodo(String ip, int puerto) {
+        try (Socket socket = new Socket(ip, puerto);
+             PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
+             BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+
+            String miIP = InetAddress.getLocalHost().getHostAddress();
+            Mensaje mensaje = new Mensaje(miIP, ip, "Hola desde " + miIP, TipoMensaje.SALUDO);
+            output.println(Mapper.toJson(mensaje));
+
+            String respuesta = input.readLine();
+            if (respuesta != null) {
+                Mensaje mensajeRecibido = Mapper.fromJson(respuesta);
+                sysoConHora("Respuesta de " + ip + ": " + mensajeRecibido.getMensaje());
             }
         } catch (IOException e) {
-            sysoConHora("Error de comunicación: " + e.getMessage());
+            sysoConHora("Error conectando a " + ip + ": " + e.getMessage());
+        }
+    }
+
+    static class ClienteHandler implements Runnable {
+        private Socket socket;
+
+        public ClienteHandler(Socket socket) throws SocketException {
+            this.socket = socket;
+        }
+
+        @Override
+        public void run() {
+            try (BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                 PrintWriter output = new PrintWriter(socket.getOutputStream(), true)) {
+
+                String mensajeJson;
+                while ((mensajeJson = input.readLine()) != null) {
+                    Mensaje mensaje = Mapper.fromJson(mensajeJson);
+                    sysoConHora("Mensaje recibido: " + mensaje.getMensaje());
+
+                    // Enviar respuesta JSON con IP origen y destino
+                    Mensaje respuesta = new Mensaje(socket.getLocalAddress().getHostAddress(), mensaje.getIpOrigen(), "Hola desde " + socket.getLocalAddress().getHostAddress(), TipoMensaje.SALUDO);
+                    output.println(Mapper.toJson(respuesta));
+                }
+            } catch (IOException e) {
+                sysoConHora("Error de comunicación: " + e.getMessage());
+            }
         }
     }
 }

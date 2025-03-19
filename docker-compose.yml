@@ -1,4 +1,17 @@
+version: '3.8'
+
 services:
+  registro_contactos:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - tcp-network
+    container_name: registro_contactos
+    command: [ "java", "-cp", "lib/*:.", "registroContactos.RegistroContactos", "4000" ]
+    ports:
+      - "4000:4000"
+
   nodo1:
     build:
       context: .
@@ -6,9 +19,11 @@ services:
     networks:
       - tcp-network
     container_name: nodo1
-    command: [ "java", "-cp", "lib/*:.", "clienteServidor.ClienteServidorTCP", "nodo1", "5000", "nodo2", "5001" ]
+    command: [ "java", "-cp", "lib/*:.", "clienteServidor.ClienteServidorTCP", "registro_contactos", "4000" ]
     ports:
       - "5000:5000"
+    depends_on:
+      - registro_contactos
 
   nodo2:
     build:
@@ -17,9 +32,24 @@ services:
     networks:
       - tcp-network
     container_name: nodo2
-    command: [ "java", "-cp", "lib/*:.", "clienteServidor.ClienteServidorTCP", "nodo2", "5001", "nodo1", "5000" ]
+    command: [ "java", "-cp", "lib/*:.", "clienteServidor.ClienteServidorTCP", "registro_contactos", "4000" ]
     ports:
       - "5001:5001"
+    depends_on:
+      - registro_contactos
+
+  nodo3:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - tcp-network
+    container_name: nodo3
+    command: [ "java", "-cp", "lib/*:.", "clienteServidor.ClienteServidorTCP", "registro_contactos", "4000" ]
+    ports:
+      - "5002:5002"
+    depends_on:
+      - registro_contactos
 
 networks:
   tcp-network:
