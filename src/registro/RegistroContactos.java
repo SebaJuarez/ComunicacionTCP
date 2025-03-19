@@ -7,11 +7,11 @@ import static logger.Logger.sysoConHora;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class RegistroContactos {
     private static final int PUERTO = 4000;
-    private static final List<String> nodos = new ArrayList<>();
+    private static final ConcurrentLinkedQueue<String> nodos = new ConcurrentLinkedQueue<>();
 
     public static void main(String[] args) {
         try (ServerSocket serverSocket = new ServerSocket(PUERTO)) {
