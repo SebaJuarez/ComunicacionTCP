@@ -43,9 +43,7 @@ public class RegistroContactos {
                     String nodoInfo = mensaje.getIpOrigen() + ":" + mensaje.getMensaje();
 
                     if (!nodos.contains(nodoInfo)) {
-                        if(nodos.removeIf(n -> n.startsWith(mensaje.getIpOrigen()))){
-                            sysoConHora("Solo se puede tener una conexión por IP");
-                        }
+                        nodos.removeIf(n -> n.startsWith(mensaje.getIpOrigen()));
                         nodos.add(nodoInfo);
                         sysoConHora("Nodo registrado: " + nodoInfo);
                     }
