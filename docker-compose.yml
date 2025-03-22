@@ -11,6 +11,8 @@ services:
     command: [ "java", "-cp", "lib/*:.", "registro.RegistroContactos", "4000" ]
     ports:
       - "4000:4000"
+    volumes:
+      - ./logs-registros:/app/logs-registros
 
   nodo1:
     build:
