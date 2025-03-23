@@ -10,7 +10,7 @@ public class GestorInscripciones {
     private static final PersistenciaRegistroVentanas persistencia = new PersistenciaRegistroVentanas();
     private final ConcurrentLinkedQueue<String> inscripcionesActuales = new ConcurrentLinkedQueue<>();
     private final ConcurrentLinkedQueue<String> inscripcionesFuturas = new ConcurrentLinkedQueue<>();
-    private int numeroVentana = 1; // Número de ventana de tiempo
+    private int numeroVentana = 1; // Número de ventanas de tiempo
 
     // Actualiza la ventana y guarda el registro de la ventana
     public void actualizarVentana() {
@@ -27,9 +27,9 @@ public class GestorInscripciones {
 
     // Registrar un nodo en la ventana futura
     public synchronized void registrarNodo(String nodoInfo) {
-        if (!inscripcionesFuturas.contains(nodoInfo)) {
-            inscripcionesFuturas.add(nodoInfo);
-        }
+        String ip = nodoInfo.split(":") [0];
+        inscripcionesFuturas.removeIf(nodo -> nodo.split(":")[0].equals(ip));
+        inscripcionesFuturas.add(nodoInfo);
     }
 
     public ConcurrentLinkedQueue<String> obtenerInscripcionesActuales() {
