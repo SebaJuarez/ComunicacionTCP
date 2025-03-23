@@ -12,6 +12,7 @@ public class GestorInscripciones {
     private final ConcurrentLinkedQueue<String> inscripcionesFuturas = new ConcurrentLinkedQueue<>();
     private int numeroVentana = 1; // Número de ventanas de tiempo
 
+
     // Actualiza la ventana y guarda el registro de la ventana
     public void actualizarVentana() {
         // Guardamos el registro de la ventana actual
@@ -34,6 +35,10 @@ public class GestorInscripciones {
 
     public ConcurrentLinkedQueue<String> obtenerInscripcionesActuales() {
         return inscripcionesActuales;
+    }
+
+    public int getVentanaActual() {
+        return numeroVentana;
     }
 }
 
