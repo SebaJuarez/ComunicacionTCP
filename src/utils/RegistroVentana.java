@@ -8,7 +8,8 @@ public class RegistroVentana {
     private LocalDateTime hora;
     private List<String> nodosRegistrados;
 
-    public RegistroVentana(){}
+    public RegistroVentana() {
+    }
 
     public RegistroVentana(int numeroVentana, List<String> nodosRegistrados) {
         this.numeroVentana = numeroVentana;

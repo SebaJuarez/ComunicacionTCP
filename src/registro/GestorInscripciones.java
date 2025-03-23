@@ -1,4 +1,5 @@
 package registro;
+
 import logger.Logger;
 import persistencia.PersistenciaRegistroVentanas;
 import utils.RegistroVentana;
@@ -28,7 +29,7 @@ public class GestorInscripciones {
 
     // Registrar un nodo en la ventana futura
     public synchronized void registrarNodo(String nodoInfo) {
-        String ip = nodoInfo.split(":") [0];
+        String ip = nodoInfo.split(":")[0];
         inscripcionesFuturas.removeIf(nodo -> nodo.split(":")[0].equals(ip));
         inscripcionesFuturas.add(nodoInfo);
     }

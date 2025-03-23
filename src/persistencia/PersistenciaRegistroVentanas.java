@@ -7,8 +7,8 @@ import utils.RegistroVentana;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 public class PersistenciaRegistroVentanas {
     private static final String DIRECTORIO_LOGS = "logs-registros";

@@ -1,15 +1,20 @@
 package registro;
 
-import utils.Mensaje;
 import utils.Mapper;
+import utils.Mensaje;
 import utils.TipoMensaje;
-import static logger.Logger.sysoConHora;
 
-import java.io.*;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import static logger.Logger.sysoConHora;
 
 public class RegistroContactos {
     private static final int PUERTO = 4000;
@@ -25,7 +30,7 @@ public class RegistroContactos {
             while (true) {
                 Socket socket = serverSocket.accept();
                 int ventana = gestorInscripciones.getVentanaActual();
-                new Thread(new ClienteHandler(socket,ventana,gestorInscripciones)).start();
+                new Thread(new ClienteHandler(socket, ventana, gestorInscripciones)).start();
             }
         } catch (IOException e) {
             sysoConHora("Error en RegistroContactos: " + e.getMessage());
@@ -60,7 +65,7 @@ public class RegistroContactos {
                         sysoConHora("Nodo registrado: " + nodoInfo);
                     }
 
-                    while(ventana == gestorInscripciones.getVentanaActual()){
+                    while (ventana == gestorInscripciones.getVentanaActual()) {
                         // significa que la ventana sigue aceptando contactos
                         Thread.sleep(1000);
                     }
