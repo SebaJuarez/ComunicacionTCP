@@ -3,11 +3,15 @@ package clienteServidor;
 import utils.Mapper;
 import utils.Mensaje;
 import utils.TipoMensaje;
-import static logger.Logger.sysoConHora;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.*;
-import java.util.*;
+import java.util.Random;
+
+import static logger.Logger.sysoConHora;
 
 public class ClienteServidorTCP {
     public static void main(String[] args) {
