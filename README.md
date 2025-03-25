@@ -18,7 +18,7 @@ Para más información, consulta cada **release** en los siguientes enlaces:
 - Implementación de un **servidor TCP (B)** que espera conexiones.
 - Creación de un **cliente TCP (A)** que se conecta y envía un saludo.
 
-### 🔹 [**HIT #2 y #3 – Manejo de Reconexiones**](https://github.com/SebaJuarez/ComunicacionTCP/releases/tag/hit2%2F3)
+### 🔹 [**HIT #2 y #3 – Manejo de Reconexiones**](https://github.com/SebaJuarez/ComunicacionTCP/releases/tag/hit2-3)
 - **Cliente (A)** intenta reconectarse automáticamente si el servidor **(B)** cierra la conexión.
 - **Servidor (B)** permanece activo y acepta nuevas conexiones si el cliente **(A)** se desconecta.
 
